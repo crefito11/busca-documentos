@@ -1,0 +1,25 @@
+# Ignorar backup do Elasticsearch
+backup/
+
+# Arquivos temporários
+*.log
+*.tmp
+*.cache
+
+# Git
+.git
+.gitignore
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Node (caso exista no futuro)
+node_modules/
+
+# Documentação opcional
+README.md
