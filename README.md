@@ -77,11 +77,13 @@ docker volume create busca-documentos_esdata
 
 ## 3. Restaurar o backup do índice
 
-Execute o comando abaixo na pasta do projeto:
+Execute o comando abaixo no Powershell com Administrador:
 
 ```bash
 docker run --rm -v busca-documentos_esdata:/data -v $(pwd)/backup:/backup alpine tar xzf /backup/esdata-backup.tar.gz -C /data
 ```
+Exemplo:
+$(pwd) -> "C:\users\HOME\Documents\workspace\crefito11\busca-documentos/backup"
 
 Esse comando irá restaurar o índice previamente salvo no volume do Elasticsearch.
 
@@ -190,13 +192,13 @@ Caso precise tornar a montagem permanente, recomenda-se configurar o mount diret
 Exemplo de busca:
 
 ```
-http://localhost:8080/scripts/buscar.php?q=teste
+http://localhost:8080/buscar.php?q=teste
 ```
 
 Ou para retornar apenas os caminhos dos arquivos:
 
 ```
-http://localhost:8080/scripts/buscar_caminhos.php?q=teste
+http://localhost:8080/buscar_caminhos.php?q=teste
 ```
 
 ---
