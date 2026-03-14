@@ -7,21 +7,56 @@ if (!$query) {
     exit;
 }
 
+function normalizar($texto)
+{
+    $texto = strtolower($texto);
+    $texto = preg_replace('/\s+/', ' ', $texto);
+
+    return trim($texto);
+}
+
+$queryNormalizada = normalizar($query);
+
 $url = 'http://elasticsearch:9200/documentos/_search';
 
 $body = [
-    '_source' => ['caminho'], // retorna somente o campo caminho
+    '_source' => ['caminho', 'conteudo', 'nome_arquivo', 'cpfCnpj'],
+    'size' => 50,
     'query' => [
-        'multi_match' => [
-            'query' => $query,
-            'fields' => [
-                'cpfCnpj^5',
-                'nome_arquivo^2',
-                'conteudo',
+        'bool' => [
+            'should' => [
+                [
+                    'term' => [
+                        'cpfCnpj' => [
+                            'value' => $query,
+                            'boost' => 10,
+                        ],
+                    ],
+                ],
+
+                [
+                    'match_phrase' => [
+                        'nome_arquivo' => [
+                            'query' => $query,
+                            'boost' => 8,
+                        ],
+                    ],
+                ],
+
+                [
+                    'match_phrase' => [
+                        'conteudo' => [
+                            'query' => $query,
+                            'boost' => 5,
+                        ],
+                    ],
+                ],
             ],
         ],
     ],
-    'size' => 100,
+    'sort' => [
+        '_score',
+    ],
 ];
 
 $ch = curl_init($url);
@@ -44,12 +79,20 @@ $prefixoRede = 'file://192.168.15.100/arquivo/';
 $caminhos = [];
 
 foreach ($data['hits']['hits'] as $hit) {
-    $caminho = $hit['_source']['caminho'];
+    $conteudo = normalizar($hit['_source']['conteudo'] ?? '');
+    $arquivo = normalizar($hit['_source']['nome_arquivo'] ?? '');
 
-    $caminho = str_replace($prefixoLocal, $prefixoRede, $caminho);
+    if (
+        str_contains($conteudo, $queryNormalizada)
+        || str_contains($arquivo, $queryNormalizada)
+        || ($hit['_source']['cpfCnpj'] ?? '') === $query
+    ) {
+        $caminho = $hit['_source']['caminho'];
+        $caminho = str_replace($prefixoLocal, $prefixoRede, $caminho);
 
-    $caminhos[] = $caminho;
+        $caminhos[] = $caminho;
+    }
 }
 
 header('Content-Type: application/json');
-echo json_encode($caminhos, JSON_PRETTY_PRINT);
+echo json_encode(array_values(array_unique($caminhos)), JSON_PRETTY_PRINT);
