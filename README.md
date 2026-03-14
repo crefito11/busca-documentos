@@ -75,6 +75,19 @@ docker volume create busca-documentos_esdata
 
 ---
 
+## 2.1 Crie a pasta "backup" dentro do repositório
+```bash
+mkdir backup/
+```
+
+## 2.2 Copie o arquivo de backup do servidor (pasta informática)
+```bash
+\\Servidor\Informatica\Backup
+```
+
+---
+
+
 ## 3. Restaurar o backup do índice
 
 Execute o comando abaixo no Powershell com Administrador:
@@ -124,7 +137,7 @@ Se estiver funcionando, verá uma resposta JSON semelhante a:
 
 ---
 
-# Montando a pasta `/documentos` para arquivos externos
+# Montando a pasta `/documentos` para arquivos externos (se precisar)
 
 Após o projeto estar rodando, é necessário montar a pasta onde ficam os arquivos que serão indexados.
 
