@@ -74,7 +74,10 @@ curl_close($ch);
 $data = json_decode($response, true);
 
 $prefixoLocal = '/documentos/';
-$prefixoRede = 'file://192.168.15.100/arquivo/';
+
+$prefixoArquivoAntigo = '\\192.168.15.100/arquivos servidor antigo/ARQUIVO';
+$prefixoRegistroGo = '\\192.168.15.100/Goiania/ARQUIVOS GOIANIA';
+$prefixoPadrao = '\\192.168.15.100/arquivo/';
 
 $caminhos = [];
 
@@ -88,7 +91,14 @@ foreach ($data['hits']['hits'] as $hit) {
         || ($hit['_source']['cpfCnpj'] ?? '') === $query
     ) {
         $caminho = $hit['_source']['caminho'];
-        $caminho = str_replace($prefixoLocal, $prefixoRede, $caminho);
+
+        if (str_starts_with($caminho, '/documentos/ARQUIVO')) {
+            $caminho = str_replace('/documentos/ARQUIVO', $prefixoArquivoAntigo, $caminho);
+        } elseif (str_starts_with($caminho, '/documentos/ARQUIVOS GOIANIA')) {
+            $caminho = str_replace('/documentos/ARQUIVOS GOIANIA', $prefixoRegistroGo, $caminho);
+        } else {
+            $caminho = str_replace($prefixoLocal, $prefixoPadrao, $caminho);
+        }
 
         $caminhos[] = $caminho;
     }
