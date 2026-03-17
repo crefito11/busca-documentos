@@ -19,7 +19,7 @@ $queryNormalizada = normalizar($query);
 
 $url = 'http://elasticsearch:9200/documentos/_search';
 
-$body = [
+/* $body = [
     '_source' => ['caminho', 'conteudo', 'nome_arquivo', 'cpfCnpj'],
     'size' => 50,
     'query' => [
@@ -57,6 +57,18 @@ $body = [
     'sort' => [
         '_score',
     ],
+]; */
+$body = [
+    'query' => [
+        'multi_match' => [
+            'query' => $query,
+            'fields' => [
+                'cpfCnpj^5',
+                'nome_arquivo^2',
+                'conteudo',
+            ],
+        ],
+    ],
 ];
 
 $ch = curl_init($url);
@@ -92,10 +104,10 @@ foreach ($data['hits']['hits'] as $hit) {
     ) {
         $caminho = $hit['_source']['caminho'];
 
-        if (str_starts_with($caminho, '/documentos/ARQUIVO')) {
-            $caminho = str_replace('/documentos/ARQUIVO', $prefixoArquivoAntigo, $caminho);
-        } elseif (str_starts_with($caminho, '/documentos/ARQUIVOS GOIANIA')) {
+        if (str_starts_with($caminho, '/documentos/ARQUIVOS GOIANIA')) {
             $caminho = str_replace('/documentos/ARQUIVOS GOIANIA', $prefixoRegistroGo, $caminho);
+        } elseif (str_starts_with($caminho, '/documentos/ARQUIVO')) {
+            $caminho = str_replace('/documentos/ARQUIVO', $prefixoArquivoAntigo, $caminho);
         } else {
             $caminho = str_replace($prefixoLocal, $prefixoPadrao, $caminho);
         }
